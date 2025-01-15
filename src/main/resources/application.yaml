@@ -1,7 +1,18 @@
 spring:
   application:
     name: secure-notes
+  datasource:
+    url: jdbc:mysql://localhost:3306/securenotesdb?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: securenotesadmin
+    password: password
   security:
     user:
       name: balaji
       password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
