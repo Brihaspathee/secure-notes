@@ -9,8 +9,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.sql.DataSource;
 
 /**
  * Created in Intellij IDEA
@@ -25,6 +27,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // test comment
+    // test comment 3
+    // test comment 4
     private static final String[] AUTH_WHITELIST = {
             "/swagger-resources/**",
 
@@ -41,6 +46,12 @@ public class SecurityConfig {
             "/public/**"
     };
 
+    /**
+     * test
+     * @param http
+     * @return
+     * @throws Exception
+     */
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((authorizeRequests) ->
@@ -53,11 +64,15 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Test again
+     * @return
+     */
     @Bean
-    public UserDetailsService userDetailsService() {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        if(!manager.userExists("user1")){
-            manager.createUser(User.withUsername("user1")
+    public UserDetailsService userDetailsService(DataSource dataSource) {
+        JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
+        if(!manager.userExists("balaji")){
+            manager.createUser(User.withUsername("balaji")
             .password("{noop}password")
                     .roles("USER")
                     .build());
