@@ -1,5 +1,11 @@
 package com.brihaspathee.secure.config;
 
+import com.brihaspathee.secure.constants.AppRole;
+import com.brihaspathee.secure.domain.entity.Role;
+import com.brihaspathee.secure.domain.entity.User;
+import com.brihaspathee.secure.domain.repository.RoleRepository;
+import com.brihaspathee.secure.domain.repository.UserRepository;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -7,12 +13,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
+import java.time.LocalDate;
 
 /**
  * Created in Intellij IDEA
@@ -64,26 +70,47 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * Test again
-     * @return
-     */
     @Bean
-    public UserDetailsService userDetailsService(DataSource dataSource) {
-        JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
-        if(!manager.userExists("balaji")){
-            manager.createUser(User.withUsername("balaji")
-            .password("{noop}password")
-                    .roles("USER")
-                    .build());
-        }
-        if(!manager.userExists("admin")){
-            manager
-                    .createUser(User.withUsername("admin")
-                    .password("{noop}password")
-                            .roles("ADMIN")
-                            .build());
-        }
-        return manager;
+    public CommandLineRunner initData(RoleRepository roleRepository, UserRepository userRepository) {
+        return args -> {
+            Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
+                    .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_USER)));
+            Role adminsRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
+                    .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_ADMIN)));
+            if(!userRepository.existsByUserName("user1")){
+                User user1 = User.builder()
+                        .userName("user1")
+                        .email("user1@example.com")
+                        .password("{noop}password1")
+                        .accountNonLocked(false)
+                        .accountNonExpired(true)
+                        .credentialsNonExpired(true)
+                        .enabled(true)
+                        .credentialsExpiryDate(LocalDate.now().plusYears(3))
+                        .accountExpiryDate(LocalDate.now().plusYears(3))
+                        .isTwoFactorEnabled(false)
+                        .signUpMethod("email")
+                        .role(userRole)
+                        .build();
+                userRepository.save(user1);
+            }
+            if(!userRepository.existsByUserName("admin1")){
+                User user1 = User.builder()
+                        .userName("admin1")
+                        .email("admin1@example.com")
+                        .password("{noop}adminpass1")
+                        .accountNonLocked(false)
+                        .accountNonExpired(true)
+                        .credentialsNonExpired(true)
+                        .enabled(true)
+                        .credentialsExpiryDate(LocalDate.now().plusYears(3))
+                        .accountExpiryDate(LocalDate.now().plusYears(3))
+                        .isTwoFactorEnabled(false)
+                        .signUpMethod("email")
+                        .role(userRole)
+                        .build();
+                userRepository.save(user1);
+            }
+        };
     }
 }
