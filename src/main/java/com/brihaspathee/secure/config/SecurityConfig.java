@@ -109,7 +109,7 @@ public class SecurityConfig {
                         .accountExpiryDate(LocalDate.now().plusYears(3))
                         .isTwoFactorEnabled(false)
                         .signUpMethod("email")
-                        .role(userRole)
+                        .role(adminsRole)
                         .build();
                 userRepository.save(user1);
             }
